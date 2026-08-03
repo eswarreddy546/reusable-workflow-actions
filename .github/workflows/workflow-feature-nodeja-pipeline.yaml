@@ -69,4 +69,3 @@ jobs:
           sha: ${{ github.sha }}
           state: ${{ steps.docker_build.outcome }}
           context: DOCKER_BUILD
-          description: ${{ steps.docker_build.outcome }}
