@@ -1,9 +1,14 @@
-name: feature-pipeline
-on: [push]
+name: Feature Pipeline
+
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  feature-pipeline:
+  feature-nodejs-pipeline:
     uses: eswarreddy546/reusable-workflow-actions/.github/workflows/workflow-feature-nodeja-pipeline.yaml@main
+
     with:
       project: roboshop
       component: catalogue

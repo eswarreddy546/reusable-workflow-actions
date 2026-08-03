@@ -14,20 +14,23 @@ on:
         type: string
 
 env:
-  ACC_ID: 526426842890
+  ACC_ID: "526426842890"
 
 jobs:
   feature-nodejs-pipeline:
     runs-on: self-hosted
 
     steps:
-      - name: Checkout Code
+      - name: Checkout Source
         uses: actions/checkout@v4
 
-      - name: List Files
-        run: ls -la
+      - name: Display Repository
+        run: |
+          pwd
+          ls -la
+          ls -la catalogue
 
-      - name: Get Application Version
+      - name: Generate Version
         run: |
           echo "APP_VERSION=${GITHUB_SHA::9}" >> $GITHUB_ENV
 
@@ -36,18 +39,26 @@ jobs:
           echo "Project     : ${{ inputs.project }}"
           echo "Component   : ${{ inputs.component }}"
           echo "Environment : ${{ inputs.environment }}"
-          echo "Version     : $APP_VERSION"
+          echo "Version     : ${APP_VERSION}"
 
       - name: Install Dependencies
+        working-directory: catalogue
         run: npm install
 
       - name: Run Unit Tests
         id: unit_tests
-        run: |
-          echo "Running Unit Tests..."
-          echo "Unit Tests Passed"
+        working-directory: catalogue
+        run: npm test
 
-      - name: Update Unit Test Status
+      - name: Docker Build
+        id: docker_build
+        working-directory: catalogue
+        run: |
+          docker build \
+          -t ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${{ inputs.project }}/${{ inputs.component }}:${APP_VERSION} .
+          docker images
+
+      - name: Unit Test Status
         if: always()
         uses: daws-86s/workflows/.github/actions/update-commit-status@main
         with:
@@ -56,13 +67,7 @@ jobs:
           context: UNIT_TESTS
           description: ${{ steps.unit_tests.outcome }}
 
-      - name: Docker Build
-        id: docker_build
-        run: |
-          docker build -t ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${{ inputs.project }}/${{ inputs.component }}:${APP_VERSION} .
-          docker images
-
-      - name: Update Docker Build Status
+      - name: Docker Build Status
         if: always()
         uses: daws-86s/workflows/.github/actions/update-commit-status@main
         with:
