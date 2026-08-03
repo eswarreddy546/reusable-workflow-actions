@@ -7,19 +7,43 @@ jobs:
   create-runner:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: terraform-actions
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: List Files
+      - name: List Repository Structure
         run: |
+          echo "=============================="
+          echo "Current Working Directory"
+          echo "=============================="
           pwd
+
+          echo ""
+          echo "=============================="
+          echo "Repository Root Files"
+          echo "=============================="
           ls -la
-          ls -la .
+
+          echo ""
+          echo "=============================="
+          echo "Complete Repository Structure"
+          echo "=============================="
+          find . -type f
+
+      - name: Verify Terraform Folder
+        run: |
+          echo "=============================="
+          echo "Terraform Folder"
+          echo "=============================="
+
+          pwd
+
+          ls -la terraform-actions
+
+          echo ""
+          echo "Terraform Files"
+
+          find terraform-actions -name "*.tf"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -32,17 +56,19 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Validate
-        run: terraform validate
+        working-directory: terraform-actions
+        run: |
+          pwd
+          ls -la
+          terraform init
 
       - name: Terraform Plan
-        run: terraform plan
+        working-directory: terraform-actions
+        run: |
+          pwd
+          ls -la
+          terraform plan
 
       - name: Terraform Apply
+        working-directory: terraform-actions
         run: terraform apply -auto-approve
-
-      # Uncomment when you want to destroy resources
-      # - name: Terraform Destroy
-      #   run: terraform destroy -auto-approve
