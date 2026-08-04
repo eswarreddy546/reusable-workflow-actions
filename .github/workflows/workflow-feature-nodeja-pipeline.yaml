@@ -32,9 +32,6 @@ jobs:
           echo "Repository Files:"
           ls -la
 
-          echo "Catalogue Folder:"
-          ls -la catalogue
-
       - name: Generate Version
         run: |
           echo "APP_VERSION=${GITHUB_SHA::9}" >> $GITHUB_ENV
@@ -47,38 +44,43 @@ jobs:
           echo "Version     : ${APP_VERSION}"
 
       - name: Install Dependencies
-        working-directory: catalogue
         run: npm install
 
       - name: Run Unit Tests
         id: unit_tests
-        working-directory: catalogue
         run: |
           echo "Running Unit Tests..."
           npm test
 
-      - name: Update Unit Test Status
-        if: always()
-        uses: eswarreddy546/reusable-workflow-actions/.github/actions/update-commit-status@main
-        with:
-          sha: ${{ github.sha }}
-          state: ${{ steps.unit_tests.outcome }}
-          context: UNIT_TESTS
-          description: ${{ steps.unit_tests.outcome }}
+      # Uncomment after creating the custom action
+      #
+      # - name: Update Unit Test Status
+      #   if: always()
+      #   uses: eswarreddy546/reusable-workflow-actions/.github/actions/update-commit-status@main
+      #   with:
+      #     sha: ${{ github.sha }}
+      #     state: ${{ steps.unit_tests.outcome }}
+      #     context: UNIT_TESTS
+      #     description: ${{ steps.unit_tests.outcome }}
 
       - name: Docker Build
         id: docker_build
-        working-directory: catalogue
         run: |
           docker build \
             -t ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${{ inputs.project }}/${{ inputs.component }}:${APP_VERSION} .
           docker images
 
-      - name: Update Docker Build Status
-        if: always()
-        uses: eswarreddy546/reusable-workflow-actions/.github/actions/update-commit-status@main
-        with:
-          sha: ${{ github.sha }}
-          state: ${{ steps.docker_build.outcome }}
-          context: DOCKER_BUILD
-          description: ${{ steps.docker_build.outcome }}
+      # Uncomment after creating the custom action
+      #
+      # - name: Update Docker Build Status
+      #   if: always()
+      #   uses: eswarreddy546/reusable-workflow-actions/.github/actions/update-commit-status@main
+      #   with:
+      #     sha: ${{ github.sha }}
+      #     state: ${{ steps.docker_build.outcome }}
+      #     context: DOCKER_BUILD
+      #     description: ${{ steps.docker_build.outcome }}
+
+      - name: Workflow Completed
+        run: |
+          echo "Feature pipeline completed successfully."
