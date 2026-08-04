@@ -15,6 +15,7 @@ on:
 
 env:
   ACC_ID: "526426842890"
+  AWS_REGION: "us-east-1"
 
 jobs:
   feature-nodejs-pipeline:
@@ -44,7 +45,8 @@ jobs:
           echo "Version     : ${APP_VERSION}"
 
       - name: Install Dependencies
-        run: npm install
+        run: |
+          npm install
 
       - name: Run Unit Tests
         id: unit_tests
@@ -52,7 +54,7 @@ jobs:
           echo "Running Unit Tests..."
           npm test
 
-      # Uncomment after creating the custom action
+      # Uncomment after creating your custom action
       #
       # - name: Update Unit Test Status
       #   if: always()
@@ -67,10 +69,11 @@ jobs:
         id: docker_build
         run: |
           docker build \
-            -t ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${{ inputs.project }}/${{ inputs.component }}:${APP_VERSION} .
+            -t ${ACC_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${{ inputs.project }}/${{ inputs.component }}:${APP_VERSION} .
+
           docker images
 
-      # Uncomment after creating the custom action
+      # Uncomment after creating your custom action
       #
       # - name: Update Docker Build Status
       #   if: always()
@@ -81,6 +84,28 @@ jobs:
       #     context: DOCKER_BUILD
       #     description: ${{ steps.docker_build.outcome }}
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region ${AWS_REGION} | docker login \
+            --username AWS \
+            --password-stdin ${ACC_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+
+      - name: Push Docker Image
+        id: docker_push
+        run: |
+          docker push ${ACC_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${{ inputs.project }}/${{ inputs.component }}:${APP_VERSION}
+
       - name: Workflow Completed
         run: |
-          echo "Feature pipeline completed successfully."
+          echo "======================================="
+          echo "Feature Pipeline Completed Successfully"
+          echo "Docker Image:"
+          echo "${ACC_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${{ inputs.project }}/${{ inputs.component }}:${APP_VERSION}"
+          echo "======================================="
