@@ -56,7 +56,8 @@ jobs:
 
       - name: Update Unit Test Status
         if: always()
-        uses: eswarreddy546/reusable-workflow-actions/.github/actions/update-commit-status@main
+        uses: eswarreddy546/reusable-workflow-actions/.github/workflows/workflow-feature-nodeja-pipeline.yaml@main
+
         with:
           sha: ${{ github.sha }}
           state: ${{ steps.unit_tests.outcome }}
@@ -73,7 +74,8 @@ jobs:
 
       - name: Update Docker Build Status
         if: always()
-        uses: eswarreddy546/reusable-workflow-actions/.github/actions/update-commit-status@main
+        uses: eswarreddy546/reusable-workflow-actions/.github/workflows/workflow-feature-nodeja-pipeline.yaml@main
+
         with:
           sha: ${{ github.sha }}
           state: ${{ steps.docker_build.outcome }}
