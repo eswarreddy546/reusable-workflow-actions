@@ -13,6 +13,10 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read
+  statuses: write
+
 env:
   ACC_ID: "526426842890"
   AWS_REGION: "us-east-1"
@@ -56,8 +60,7 @@ jobs:
 
       - name: Update Unit Test Status
         if: always()
-        uses: eswarreddy546/reusable-workflow-actions/.github/workflows/workflow-feature-nodeja-pipeline.yaml@main
-
+        uses: eswarreddy546/reusable-workflow-actions/.github/actions/update-commit-status@main
         with:
           sha: ${{ github.sha }}
           state: ${{ steps.unit_tests.outcome }}
@@ -74,8 +77,7 @@ jobs:
 
       - name: Update Docker Build Status
         if: always()
-        uses: eswarreddy546/reusable-workflow-actions/.github/workflows/workflow-feature-nodeja-pipeline.yaml@main
-
+        uses: eswarreddy546/reusable-workflow-actions/.github/actions/update-commit-status@main
         with:
           sha: ${{ github.sha }}
           state: ${{ steps.docker_build.outcome }}
