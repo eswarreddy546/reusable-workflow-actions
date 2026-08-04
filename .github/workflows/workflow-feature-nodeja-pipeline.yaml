@@ -54,15 +54,15 @@ jobs:
           echo "Running Unit Tests..."
           npm test
 
-      # - name: Update Unit Test Status
-      #   if: always()
-      #   uses: eswarreddy546/reusable-workflow-actions/.github/workflows/workflow-feature-nodeja-pipeline.yaml@main
+      - name: Update Unit Test Status
+        if: always()
+        uses: eswarreddy546/reusable-workflow-actions/.github/workflows/workflow-feature-nodeja-pipeline.yaml@main
 
-      #   with:
-      #     sha: ${{ github.sha }}
-      #     state: ${{ steps.unit_tests.outcome }}
-      #     context: UNIT_TESTS
-      #     description: ${{ steps.unit_tests.outcome }}
+        with:
+          sha: ${{ github.sha }}
+          state: ${{ steps.unit_tests.outcome }}
+          context: UNIT_TESTS
+          description: ${{ steps.unit_tests.outcome }}
 
       - name: Docker Build
         id: docker_build
@@ -72,15 +72,15 @@ jobs:
 
           docker images
 
-      # - name: Update Docker Build Status
-      #   if: always()
-      #   uses: eswarreddy546/reusable-workflow-actions/.github/workflows/workflow-feature-nodeja-pipeline.yaml@main
+      - name: Update Docker Build Status
+        if: always()
+        uses: eswarreddy546/reusable-workflow-actions/.github/workflows/workflow-feature-nodeja-pipeline.yaml@main
 
-      #   with:
-      #     sha: ${{ github.sha }}
-      #     state: ${{ steps.docker_build.outcome }}
-      #     context: DOCKER_BUILD
-      #     description: ${{ steps.docker_build.outcome }}
+        with:
+          sha: ${{ github.sha }}
+          state: ${{ steps.docker_build.outcome }}
+          context: DOCKER_BUILD
+          description: ${{ steps.docker_build.outcome }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v5
