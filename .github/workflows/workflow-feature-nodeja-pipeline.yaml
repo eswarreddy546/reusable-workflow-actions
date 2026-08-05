@@ -93,30 +93,24 @@ jobs:
           echo "Running Trivy Security Scan"
           echo "====================================="
 
+          IMAGE_NAME="${ACC_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${{ inputs.project }}/${{ inputs.component }}:${APP_VERSION}"
+
+          echo "Scanning Image: $IMAGE_NAME"
+
+          docker images
+
           trivy image \
             --scanners vuln \
             --severity HIGH,CRITICAL \
-             --exit-code 0 \    
-            # --exit-code 1   if to many vulnerabilities means its stop the 
+            --exit-code 0 \
             --format table \
-            ${ACC_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${{ inputs.project }}/${{ inputs.component }}:${APP_VERSION}
+            "$IMAGE_NAME"
 
           echo "====================================="
           echo "Trivy Scan Completed Successfully"
           echo "====================================="
 
-
-
-      - name: Update Security Scan Status
-        if: always()
-        uses: eswarreddy546/reusable-workflow-actions/.github/actions/update-commit-status@main
-        with:
-          sha: ${{ github.sha }}
-          state: ${{ steps.security_check.outcome }}
-          context: SECURITY_CHECK
-          description: ${{ steps.security_check.outcome }}
-
-     
+          
 
 
 
