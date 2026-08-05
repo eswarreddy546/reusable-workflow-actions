@@ -144,3 +144,9 @@ jobs:
           echo "Docker Image:"
           echo "${ACC_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${{ inputs.project }}/${{ inputs.component }}:${APP_VERSION}"
           echo "======================================="
+
+
+      - name: authenticate to EKS
+        run: |
+          aws eks update-kubeconfig --region us-east-1 --name roboshop-dev
+          kubectl get nodes
