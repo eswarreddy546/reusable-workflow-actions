@@ -155,10 +155,10 @@ jobs:
 
     
 
-      - name: Checkout Catalogue Deploy Repository
+      - name: Checkout Kubernetes Repository
         uses: actions/checkout@v4
         with:
-          repository: daws-86s/catalogue-deploy
+          repository: daws-86s/k8-roboshop
 
       - name: Authenticate to EKS
         run: |
@@ -168,7 +168,11 @@ jobs:
 
           kubectl get nodes
 
-      - name: Deploy to DEV Cluster
+      - name: Create Namespace
+        run: |
+          kubectl apply -f 01-namespace.yaml
+
+      - name: Deploy Component
         id: dev_deploy
         run: |
           echo "======================================"
@@ -178,21 +182,17 @@ jobs:
           echo "Image Version       : ${APP_VERSION}"
           echo "======================================"
 
-          helm upgrade --install ${{ inputs.component }} \
-            -f values-${{ inputs.environment }}.yaml \
-            -n ${{ inputs.project }} \
-            --create-namespace \
-            --set deployment.imageVersion=${APP_VERSION} \
-            --atomic \
-            --wait \
-            --timeout=5m .
+          kubectl apply -f ${{ inputs.component }}/manifest.yaml
 
           echo "======================================"
           echo "Deployment Completed Successfully"
           echo "======================================"
 
-          kubectl get pods -n ${{ inputs.project }}
-          kubectl get svc -n ${{ inputs.project }}
+      - name: Verify Deployment
+        run: |
+          kubectl get pods -n roboshop
+          kubectl get svc -n roboshop
+          kubectl get deployments -n roboshop
 
       - name: Update DEV Deploy Status
         if: always()
